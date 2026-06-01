@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import { RefreshCw, Link as LinkIcon } from 'lucide-react';
+import { RefreshCw, Link as LinkIcon, Settings } from 'lucide-react';
 import './App.css';
 import Dashboard from './components/Dashboard';
 
 function App() {
   const [csvUrl, setCsvUrl] = useState(localStorage.getItem('sheetCsvUrl') || '');
+  const [isUrlExpanded, setIsUrlExpanded] = useState(!localStorage.getItem('sheetCsvUrl'));
   const [dailyGoal, setDailyGoal] = useState(100);
   const [foodLogs, setFoodLogs] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -81,18 +82,35 @@ function App() {
 
   return (
     <div className="app-layout">
-      <div className="settings-bar glass-panel">
-        <LinkIcon size={20} color="var(--text-secondary)" />
-        <input 
-          type="text" 
-          placeholder="Paste your Google Sheet link here..." 
-          value={csvUrl}
-          onChange={(e) => setCsvUrl(e.target.value)}
-        />
-        <button onClick={fetchSheetData} disabled={isLoading || !csvUrl}>
-          <RefreshCw size={16} className={isLoading ? 'spinning' : ''} />
-          {isLoading ? 'Syncing...' : 'Sync Data'}
-        </button>
+      <div className="settings-bar glass-panel" style={{ justifyContent: isUrlExpanded ? 'flex-start' : 'flex-end' }}>
+        {isUrlExpanded ? (
+          <>
+            <LinkIcon size={20} color="var(--text-secondary)" />
+            <input 
+              type="text" 
+              placeholder="Paste your Google Sheet link here..." 
+              value={csvUrl}
+              onChange={(e) => setCsvUrl(e.target.value)}
+            />
+            <button onClick={() => { fetchSheetData(); setIsUrlExpanded(false); }} disabled={isLoading || !csvUrl}>
+              <RefreshCw size={16} className={isLoading ? 'spinning' : ''} />
+              {isLoading ? 'Syncing...' : 'Save & Sync'}
+            </button>
+          </>
+        ) : (
+          <>
+            <button 
+              onClick={() => setIsUrlExpanded(true)} 
+              style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}
+            >
+              <Settings size={16} /> Edit Link
+            </button>
+            <button onClick={fetchSheetData} disabled={isLoading || !csvUrl}>
+              <RefreshCw size={16} className={isLoading ? 'spinning' : ''} />
+              {isLoading ? 'Syncing...' : 'Sync Data'}
+            </button>
+          </>
+        )}
       </div>
       
       {error && (
