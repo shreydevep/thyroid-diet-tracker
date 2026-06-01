@@ -134,3 +134,39 @@
     margin-right: 0;
   }
 }
+
+.settings-bar {
+  position: relative;
+}
+
+.top-bar-mood {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  padding: 0;
+  gap: 16px;
+  margin: 0;
+}
+
+.top-bar-mood .mood-btn {
+  padding: 4px;
+}
+
+.top-bar-mood .mood-emoji {
+  font-size: 24px;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .top-bar-mood {
+    position: static;
+    transform: none;
+    margin: 10px auto;
+  }
+}

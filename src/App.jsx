@@ -108,16 +108,39 @@ function App() {
               <Sparkles size={16} color="#a855f7" /> Open Gemini Gem
             </a>
 
-            <button 
-              onClick={() => setIsUrlExpanded(true)} 
-              style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}
-            >
-              <Settings size={16} /> Edit Link
-            </button>
-            <button onClick={fetchSheetData} disabled={isLoading || !csvUrl}>
-              <RefreshCw size={16} className={isLoading ? 'spinning' : ''} />
-              {isLoading ? 'Syncing...' : 'Sync Data'}
-            </button>
+            {selectedDate && selectedDate !== 'Unknown Date' && (
+              <div className="mood-selector top-bar-mood">
+                {[
+                  { emoji: '😫', label: 'Terrible' },
+                  { emoji: '🙁', label: 'Bad' },
+                  { emoji: '😐', label: 'Okay' },
+                  { emoji: '🙂', label: 'Good' },
+                  { emoji: '🤩', label: 'Great' }
+                ].map((m, i) => (
+                  <button 
+                    key={i} 
+                    className={`mood-btn ${dailyMood[selectedDate] === m.label ? 'active' : ''}`}
+                    onClick={() => handleMoodSelect(m.label)}
+                    title={m.label}
+                  >
+                    <span className="mood-emoji">{m.emoji}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="settings-actions">
+              <button 
+                onClick={() => setIsUrlExpanded(true)} 
+                style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}
+              >
+                <Settings size={16} /> Edit Link
+              </button>
+              <button onClick={fetchSheetData} disabled={isLoading || !csvUrl}>
+                <RefreshCw size={16} className={isLoading ? 'spinning' : ''} />
+                {isLoading ? 'Syncing...' : 'Sync Data'}
+              </button>
+            </div>
           </>
         )}
       </div>
