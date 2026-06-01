@@ -50,7 +50,7 @@ function App() {
             iodine: isNaN(iodine) ? 0 : iodine,
             time: row['Time'] || 'Unknown Time',
             date: rawDate,
-            energy: row['Energy Score'] || null,
+            energy: row['Energy Score'] || row['Energy (1-10)'] || row['Energy'] || null,
             notes: row['Notes'] || ''
           };
         });
