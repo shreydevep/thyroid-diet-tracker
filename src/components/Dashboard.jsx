@@ -82,11 +82,19 @@ const Dashboard = ({ allFoodLogs, dailyGoal, setDailyGoal, selectedDate, setSele
   const iodineIntake = dailyLogs.reduce((sum, log) => sum + log.iodine, 0);
   
   let latestEnergy = null;
-  let latestNotes = '';
+  let latestNotes = null;
   dailyLogs.forEach(log => {
     if (log.energy) latestEnergy = log.energy;
     if (log.notes) latestNotes = log.notes;
   });
+
+  const energyData = dailyLogs
+    .filter(log => log.energy)
+    .map(log => ({
+      name: log.time && log.time !== 'Unknown Time' ? log.time : log.name,
+      energy: parseInt(log.energy, 10),
+      notes: log.notes
+    }));
 
   const percentage = Math.min((iodineIntake / dailyGoal) * 100, 100);
   
@@ -257,22 +265,36 @@ const Dashboard = ({ allFoodLogs, dailyGoal, setDailyGoal, selectedDate, setSele
           <p className="gauge-subtitle">Target: &lt; {dailyGoal} mcg</p>
         </DashboardCard>
 
-        {/* Energy & Symptoms Card */}
-        <DashboardCard id="symptoms" title="Symptom Tracker" icon={<Zap className="icon" style={{color: '#f59e0b'}} />} className="energy-card" {...cardProps}>
-          <div className="energy-display">
-            {latestEnergy ? (
-              <>
-                <div className="energy-score">{latestEnergy}<span className="out-of">/10</span></div>
-                <p className="energy-label">Energy Score ({displayDate})</p>
-              </>
-            ) : (
-              <p className="empty-state">No energy score logged for this day.</p>
-            )}
-          </div>
-          {latestNotes && (
-             <div className="recent-notes">
-               <strong>Notes:</strong> {latestNotes}
-             </div>
+        {/* Energy Stabilization Curve Card */}
+        <DashboardCard id="symptoms" title="Energy Stabilization" icon={<Zap className="icon" style={{color: '#f59e0b'}} />} className="energy-card" {...cardProps}>
+          {energyData.length > 0 ? (
+            <div style={{ height: '200px', width: '100%', marginTop: '10px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ flex: 1, minHeight: 0 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={energyData} margin={{ top: 5, right: 10, left: -25, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis dataKey="name" stroke="var(--text-secondary)" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis domain={[0, 10]} ticks={[0, 5, 10]} stroke="var(--text-secondary)" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '12px' }}
+                      itemStyle={{ color: '#f59e0b', fontWeight: 'bold' }}
+                      formatter={(value) => [`${value}/10`, 'Energy Score']}
+                      labelStyle={{ color: 'var(--text-primary)', fontWeight: 'bold', marginBottom: '4px' }}
+                    />
+                    <Line type="monotone" dataKey="energy" name="Energy Score" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4, fill: '#f59e0b', strokeWidth: 2, stroke: '#1e293b' }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              {latestNotes && (
+                <div className="recent-notes" style={{ marginTop: '12px' }}>
+                  <strong>Latest Note:</strong> {latestNotes}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="energy-display" style={{ marginTop: '20px' }}>
+              <p className="empty-state">No energy scores logged for this day.</p>
+            </div>
           )}
         </DashboardCard>
 
@@ -375,13 +397,27 @@ const Dashboard = ({ allFoodLogs, dailyGoal, setDailyGoal, selectedDate, setSele
           <div className="logs-list">
             {dailyLogs.length === 0 && <p className="empty-state">No meals logged on this day.</p>}
             {dailyLogs.slice().reverse().map(log => (
-              <div key={log.id} className="log-item">
-                <div className={`status-dot ${log.category.toLowerCase()}`}></div>
-                <div className="log-details">
-                  <span className="log-name">{log.name}</span>
-                  <span className="log-time">{log.time}</span>
+              <div key={log.id} className="log-item" style={{ flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+                  <div className={`status-dot ${log.category.toLowerCase()}`}></div>
+                  <div className="log-details">
+                    <span className="log-name">{log.name}</span>
+                    <span className="log-time">{log.time}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    {log.energy && (
+                      <span style={{ fontSize: '11px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>
+                        ⚡ {log.energy}/10
+                      </span>
+                    )}
+                    <div className="log-iodine">{log.iodine} mcg</div>
+                  </div>
                 </div>
-                <div className="log-iodine">{log.iodine} mcg</div>
+                {log.notes && (
+                  <div style={{ width: '100%', fontSize: '12px', color: 'var(--text-secondary)', paddingLeft: '26px', marginTop: '6px', fontStyle: 'italic' }}>
+                    "{log.notes}"
+                  </div>
+                )}
               </div>
             ))}
           </div>
