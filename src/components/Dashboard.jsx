@@ -88,13 +88,48 @@ const Dashboard = ({ allFoodLogs, dailyGoal, setDailyGoal, selectedDate, setSele
     if (log.notes) latestNotes = log.notes;
   });
 
-  const energyData = dailyLogs
-    .filter(log => log.energy)
-    .map(log => ({
-      name: log.time && log.time !== 'Unknown Time' ? log.time : log.name,
-      energy: parseInt(log.energy, 10),
-      notes: log.notes
-    }));
+  // Group and average energy scores by hour
+  const hourlyEnergyMap = {};
+  
+  dailyLogs.forEach(log => {
+    if (!log.energy) return;
+    const timeStr = log.time && log.time !== 'Unknown Time' ? log.time : '';
+    let hourKey = log.name; // Fallback to name if no valid time
+    
+    // Parse times like "8:30 AM" or "08:44 am" into "8 AM"
+    const match = timeStr.match(/(\d+)(:\d+)?\s*(am|pm)/i);
+    if (match) {
+      let hour = parseInt(match[1], 10);
+      const isPM = match[3].toLowerCase() === 'pm';
+      
+      // Standardize hour presentation
+      if (hour === 0) hour = 12;
+      hourKey = `${hour} ${isPM ? 'PM' : 'AM'}`;
+    }
+    
+    if (!hourlyEnergyMap[hourKey]) {
+      hourlyEnergyMap[hourKey] = {
+        sum: 0,
+        count: 0,
+        notes: []
+      };
+    }
+    hourlyEnergyMap[hourKey].sum += parseInt(log.energy, 10);
+    hourlyEnergyMap[hourKey].count += 1;
+    if (log.notes) {
+      hourlyEnergyMap[hourKey].notes.push(log.notes);
+    }
+  });
+
+  const energyData = Object.keys(hourlyEnergyMap).map(key => {
+    const group = hourlyEnergyMap[key];
+    const avgEnergy = Math.round(group.sum / group.count);
+    return {
+      name: key,
+      energy: avgEnergy,
+      notes: group.notes.join(' | ') || null
+    };
+  });
 
   const percentage = Math.min((iodineIntake / dailyGoal) * 100, 100);
   
