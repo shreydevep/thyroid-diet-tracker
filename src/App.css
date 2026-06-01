@@ -48,6 +48,26 @@
   opacity: 0.9;
 }
 
+.gemini-btn {
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: background 0.2s;
+}
+
+.gemini-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
 .dashboard-section {
   flex: 1;
   display: flex;
@@ -108,5 +128,9 @@
   
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .gemini-btn {
+    margin-right: 0;
   }
 }
