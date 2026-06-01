@@ -13,6 +13,28 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [dailyMood, setDailyMood] = useState({});
+
+  useEffect(() => {
+    const savedMood = localStorage.getItem('dailyMoodMap');
+    if (savedMood) {
+      try {
+        const parsed = JSON.parse(savedMood);
+        setDailyMood(parsed || {});
+      } catch (e) {
+        console.error("Could not parse dailyMoodMap");
+        setDailyMood({});
+      }
+    }
+  }, []);
+
+  const handleMoodSelect = (mood) => {
+    if (!selectedDate || selectedDate === 'Unknown Date') return;
+    const newMoodMap = { ...dailyMood, [selectedDate]: mood };
+    setDailyMood(newMoodMap);
+    localStorage.setItem('dailyMoodMap', JSON.stringify(newMoodMap));
+  };
+
   const fetchSheetData = () => {
     if (!csvUrl) return;
     
