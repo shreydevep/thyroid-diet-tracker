@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Apple, Zap, Search, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Pin, PinOff, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
+import { Activity, Apple, Zap, Search, CheckCircle2, ChevronLeft, ChevronRight, TrendingUp, Pin, PinOff, ChevronDown, ChevronUp, Calendar, Smile } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { ActivityCalendar } from 'react-activity-calendar';
 import ProductInspector from './ProductInspector';
@@ -75,6 +75,25 @@ const Dashboard = ({ allFoodLogs, dailyGoal, setDailyGoal, selectedDate, setSele
   const handleNextDay = () => {
     const idx = uniqueDates.indexOf(selectedDate);
     if (idx < uniqueDates.length - 1) setSelectedDate(uniqueDates[idx + 1]);
+  };
+
+  const [dailyMood, setDailyMood] = useState({});
+
+  useEffect(() => {
+    const savedMood = localStorage.getItem('dailyMoodMap');
+    if (savedMood) {
+      try {
+        setDailyMood(JSON.parse(savedMood));
+      } catch (e) {
+        console.error("Could not parse dailyMoodMap");
+      }
+    }
+  }, []);
+
+  const handleMoodSelect = (mood) => {
+    const newMoodMap = { ...dailyMood, [selectedDate]: mood };
+    setDailyMood(newMoodMap);
+    localStorage.setItem('dailyMoodMap', JSON.stringify(newMoodMap));
   };
 
   // 2. Daily Tracking Logic
@@ -331,6 +350,30 @@ const Dashboard = ({ allFoodLogs, dailyGoal, setDailyGoal, selectedDate, setSele
               <p className="empty-state">No energy scores logged for this day.</p>
             </div>
           )}
+        </DashboardCard>
+
+        {/* Mood Tracker Card */}
+        <DashboardCard id="mood" title="Daily Mood" icon={<Smile className="icon" style={{color: '#8b5cf6'}} />} className="mood-card" {...cardProps}>
+          <p className="checklist-desc" style={{ marginBottom: '20px' }}>How are you feeling today?</p>
+          <div className="mood-selector">
+            {[
+              { emoji: '😫', label: 'Terrible' },
+              { emoji: '🙁', label: 'Bad' },
+              { emoji: '😐', label: 'Okay' },
+              { emoji: '🙂', label: 'Good' },
+              { emoji: '🤩', label: 'Great' }
+            ].map((m, i) => (
+              <button 
+                key={i} 
+                className={`mood-btn ${dailyMood[selectedDate] === m.label ? 'active' : ''}`}
+                onClick={() => handleMoodSelect(m.label)}
+                title={m.label}
+              >
+                <span className="mood-emoji">{m.emoji}</span>
+                <span className="mood-label">{m.label}</span>
+              </button>
+            ))}
+          </div>
         </DashboardCard>
 
         {/* Hidden Iodine Checklist */}
