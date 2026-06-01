@@ -119,7 +119,7 @@ function App() {
                 ].map((m, i) => (
                   <button 
                     key={i} 
-                    className={`mood-btn ${dailyMood[selectedDate] === m.label ? 'active' : ''}`}
+                    className={`mood-btn ${(dailyMood || {})[selectedDate] === m.label ? 'active' : ''}`}
                     onClick={() => handleMoodSelect(m.label)}
                     title={m.label}
                   >
