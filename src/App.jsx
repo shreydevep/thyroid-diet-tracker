@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import { RefreshCw, Link as LinkIcon, Settings } from 'lucide-react';
+import { RefreshCw, Link as LinkIcon, Settings, Sparkles } from 'lucide-react';
 import './App.css';
 import Dashboard from './components/Dashboard';
 
@@ -99,6 +99,28 @@ function App() {
           </>
         ) : (
           <>
+            <a 
+              href="https://gemini.google.com/gem/6ecdba04a076" 
+              target="_blank" 
+              rel="noreferrer"
+              style={{
+                marginRight: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'rgba(255,255,255,0.05)',
+                color: 'var(--text-primary)',
+                textDecoration: 'none',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                fontWeight: '600',
+                border: '1px solid rgba(255,255,255,0.1)',
+                transition: 'background 0.2s'
+              }}
+            >
+              <Sparkles size={16} color="#a855f7" /> Open Gemini Gem
+            </a>
+
             <button 
               onClick={() => setIsUrlExpanded(true)} 
               style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}
