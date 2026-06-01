@@ -141,9 +141,20 @@ If you cannot identify the product at all, return JSON with name as "Unknown Pro
             <div className="step-header">
               <span className="step-number">1</span>
               <h4>Copy this Prompt</h4>
-              <button className="copy-btn" onClick={handleCopy}>
-                <Copy size={14} /> {copySuccess || 'Copy'}
-              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button className="copy-btn" onClick={handleCopy}>
+                  <Copy size={14} /> {copySuccess || 'Copy'}
+                </button>
+                <a 
+                  href="https://gemini.google.com/gem/6ecdba04a076" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="copy-btn" 
+                  style={{ background: 'var(--accent-primary)', color: 'white', textDecoration: 'none', fontWeight: 'bold' }}
+                >
+                  Open Gemini
+                </a>
+              </div>
             </div>
             <pre className="prompt-display">{generatePromptText()}</pre>
           </div>
