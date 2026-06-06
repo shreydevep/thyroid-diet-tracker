@@ -184,6 +184,15 @@ function App() {
               <RefreshCw size={16} className={isLoading ? 'spinning' : ''} />
               {isLoading ? 'Syncing...' : 'Save & Sync'}
             </button>
+            <input type="file" id="health-export-upload" accept=".xml" style={{ display: 'none' }} onChange={handleHealthExportUpload} />
+            <button 
+              onClick={() => document.getElementById('health-export-upload').click()}
+              style={{ background: '#eab308', color: '#0f172a', border: 'none', marginLeft: 'auto', fontWeight: 'bold', padding: '8px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+              disabled={isLoading}
+              title="Upload Apple Health export.xml"
+            >
+              <Activity size={16} /> Import Health Data
+            </button>
           </>
         ) : (
           <>
@@ -221,7 +230,7 @@ function App() {
               <input type="file" id="health-export-upload" accept=".xml" style={{ display: 'none' }} onChange={handleHealthExportUpload} />
               <button 
                 onClick={() => document.getElementById('health-export-upload').click()}
-                style={{ background: 'var(--color-yellow)', color: '#0f172a', border: 'none' }}
+                style={{ background: '#eab308', color: '#0f172a', border: 'none', fontWeight: 'bold', padding: '8px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
                 disabled={isLoading}
                 title="Upload Apple Health export.xml"
               >
