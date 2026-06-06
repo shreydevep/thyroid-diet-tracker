@@ -89,11 +89,14 @@ function App() {
             const combined = [...prev, ...meals];
             const uniqueDates = [...new Set(combined.map(l => l.date).filter(d => d !== 'Unknown Date'))];
             uniqueDates.sort((a, b) => new Date(a) - new Date(b));
-            if (uniqueDates.length > 0 && !selectedDate) {
+            if (uniqueDates.length > 0) {
               setSelectedDate(uniqueDates[uniqueDates.length - 1]);
             }
             return combined;
           });
+          alert(`Successfully imported ${meals.length} meals from Apple Health!`);
+        } else {
+          alert('No meals found in Apple Health export! Make sure HealthifyMe is syncing nutritional data to Apple Health.');
         }
         setIsLoading(false);
       };
