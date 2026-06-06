@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import { RefreshCw, Link as LinkIcon, Settings, Sparkles } from 'lucide-react';
+import { RefreshCw, Link as LinkIcon, Settings, Sparkles, Activity } from 'lucide-react';
 import './App.css';
 import Dashboard from './components/Dashboard';
 
@@ -33,6 +33,72 @@ function App() {
     const newMoodMap = { ...dailyMood, [selectedDate]: mood };
     setDailyMood(newMoodMap);
     localStorage.setItem('dailyMoodMap', JSON.stringify(newMoodMap));
+  };
+
+  const handleHealthExportUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const text = evt.target.result;
+        const meals = [];
+        const correlationRegex = /<Correlation\s+type="HKCorrelationTypeIdentifierFood".*?<\/Correlation>/gs;
+        let match;
+        
+        while ((match = correlationRegex.exec(text)) !== null) {
+          const block = match[0];
+          
+          const nameMatch = block.match(/<MetadataEntry\s+key="HKFoodType"\s+value="([^"]+)"/);
+          const foodName = nameMatch ? nameMatch[1] : 'Apple Health Meal';
+          
+          const dateMatch = block.match(/creationDate="([^"]+)"/);
+          let logDate = new Date();
+          if (dateMatch) {
+             logDate = new Date(dateMatch[1]);
+          }
+          
+          const energyMatch = block.match(/<Record\s+type="HKQuantityTypeIdentifierDietaryEnergyConsumed".*?value="([^"]+)"/);
+          const proteinMatch = block.match(/<Record\s+type="HKQuantityTypeIdentifierDietaryProtein".*?value="([^"]+)"/);
+          const carbsMatch = block.match(/<Record\s+type="HKQuantityTypeIdentifierDietaryCarbohydrates".*?value="([^"]+)"/);
+          const fatMatch = block.match(/<Record\s+type="HKQuantityTypeIdentifierDietaryFatTotal".*?value="([^"]+)"/);
+          
+          const timeStr = logDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+          const dateStr = logDate.toLocaleDateString('en-US'); 
+          
+          meals.push({
+            id: 'hk_' + Math.random().toString(36).substr(2, 9),
+            name: foodName,
+            category: 'HealthKit',
+            iodine: 0,
+            time: timeStr,
+            date: dateStr,
+            energy: null,
+            calories: energyMatch ? parseFloat(energyMatch[1]) : 0,
+            protein: proteinMatch ? parseFloat(proteinMatch[1]) : 0,
+            carbs: carbsMatch ? parseFloat(carbsMatch[1]) : 0,
+            fats: fatMatch ? parseFloat(fatMatch[1]) : 0,
+            notes: 'Apple Health Sync'
+          });
+        }
+        
+        if (meals.length > 0) {
+          setFoodLogs(prev => {
+            const combined = [...prev, ...meals];
+            const uniqueDates = [...new Set(combined.map(l => l.date).filter(d => d !== 'Unknown Date'))];
+            uniqueDates.sort((a, b) => new Date(a) - new Date(b));
+            if (uniqueDates.length > 0 && !selectedDate) {
+              setSelectedDate(uniqueDates[uniqueDates.length - 1]);
+            }
+            return combined;
+          });
+        }
+        setIsLoading(false);
+      };
+      reader.readAsText(file);
+    }, 100);
   };
 
   const fetchSheetData = () => {
@@ -152,6 +218,15 @@ function App() {
             )}
 
             <div className="settings-actions">
+              <input type="file" id="health-export-upload" accept=".xml" style={{ display: 'none' }} onChange={handleHealthExportUpload} />
+              <button 
+                onClick={() => document.getElementById('health-export-upload').click()}
+                style={{ background: 'var(--color-yellow)', color: '#0f172a', border: 'none' }}
+                disabled={isLoading}
+                title="Upload Apple Health export.xml"
+              >
+                <Activity size={16} /> Import Health Data
+              </button>
               <button 
                 onClick={() => setIsUrlExpanded(true)} 
                 style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.1)' }}

@@ -434,10 +434,13 @@ const Dashboard = ({ allFoodLogs, dailyGoal, setDailyGoal, selectedDate, setSele
             {dailyLogs.slice().reverse().map(log => (
               <div key={log.id} className="log-item" style={{ flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-                  <div className={`status-dot ${log.category.toLowerCase()}`}></div>
+                  <div className={`status-dot ${log.category === 'HealthKit' ? 'blue' : log.category.toLowerCase()}`}></div>
                   <div className="log-details">
                     <span className="log-name">{log.name}</span>
-                    <span className="log-time">{log.time}</span>
+                    <span className="log-time">
+                      {log.time} 
+                      {log.category === 'HealthKit' && <span style={{fontSize: '10px', color: '#38bdf8', marginLeft: '6px', fontWeight: 'bold'}}>APPLE HEALTH</span>}
+                    </span>
                   </div>
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     {log.energy && (
@@ -445,9 +448,17 @@ const Dashboard = ({ allFoodLogs, dailyGoal, setDailyGoal, selectedDate, setSele
                         ⚡ {log.energy}/10
                       </span>
                     )}
-                    <div className="log-iodine">{log.iodine} mcg</div>
+                    {log.category !== 'HealthKit' && <div className="log-iodine">{log.iodine} mcg</div>}
+                    {log.category === 'HealthKit' && log.calories > 0 && <div className="log-iodine">{log.calories} kcal</div>}
                   </div>
                 </div>
+                {log.category === 'HealthKit' && (log.protein > 0 || log.carbs > 0 || log.fats > 0) && (
+                  <div style={{ width: '100%', fontSize: '11px', color: 'var(--text-secondary)', paddingLeft: '26px', marginTop: '4px', display: 'flex', gap: '12px' }}>
+                     <span>🥩 {log.protein}g</span>
+                     <span>🌾 {log.carbs}g</span>
+                     <span>🥑 {log.fats}g</span>
+                  </div>
+                )}
                 {log.notes && (
                   <div style={{ width: '100%', fontSize: '12px', color: 'var(--text-secondary)', paddingLeft: '26px', marginTop: '6px', fontStyle: 'italic' }}>
                     "{log.notes}"
